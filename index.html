@@ -35,12 +35,19 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .supplier-highlight { background-color: rgba(254, 212, 142, 0.14); border-left: 4px solid #785920; }
         .drag-over { border-color: #003f7d !important; background-color: rgba(0, 63, 125, 0.06) !important; }
+        
+        /* SAP Classic UI Mockup Styling */
+        .sap-panel { background-color: #ece9d8; border: 1px solid #aca899; font-family: Tahoma, sans-serif; color: #000; }
+        .sap-group { border: 1px solid #d0d0bf; border-radius: 4px; position: relative; padding: 12px 10px 8px 10px; background: #f3f1e6; }
+        .sap-legend { position: absolute; top: -9px; left: 8px; background: #ece9d8; padding: 0 6px; font-size: 11px; color: #333; border: 1px solid #d0d0bf; border-radius: 3px; }
+        .sap-label-box { background: linear-gradient(to bottom, #f5e6a8, #e6cc7a); border: 1px solid #b59b4c; padding: 2px 8px; font-size: 11px; font-weight: bold; color: #222; border-radius: 3px; }
+        .sap-btn-pill { background: linear-gradient(to bottom, #f7f4e8, #dfd9c3); border: 1px solid #9e967c; border-radius: 12px; padding: 2px 12px; font-size: 11px; color: #1b4f93; font-weight: bold; }
     </style>
 </head>
 
 <body class="bg-surface font-body text-on-surface">
 
-<!-- Main Content (Full Width - No Sidebar) -->
+<!-- Main Content (Full Width) -->
 <main class="min-h-screen">
     <!-- Top Header -->
     <header class="sticky top-0 w-full z-40 glass-header shadow-sm border-b border-gray-100">
@@ -50,30 +57,38 @@
                 <span class="hidden sm:inline-block text-gray-300">|</span>
                 <span class="hidden sm:inline-block text-xs font-semibold text-gray-500 uppercase tracking-wider">Sovereign Curator v2.0</span>
             </div>
-            <div id="actionToolbar" class="hidden items-center gap-2.5 flex-wrap">
-                <button onclick="exportToExcel()" class="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-700 text-white rounded-lg text-xs font-bold hover:bg-emerald-800 transition-all shadow-sm">
-                    <span class="material-symbols-outlined text-sm">table_view</span> Export Excel
-                </button>
-                <button onclick="downloadTableImage()" class="flex items-center gap-1.5 px-3.5 py-2 bg-primary text-white rounded-lg text-xs font-bold hover:bg-primary-container transition-all shadow-sm">
-                    <span class="material-symbols-outlined text-sm">download</span> Save PNG
-                </button>
-                <button id="copyBtn" onclick="copyTableToClipboard()" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white rounded-lg text-xs font-bold hover:bg-opacity-90 transition-all shadow-md">
-                    <span class="material-symbols-outlined text-sm">content_paste</span> Copy to MS Teams
-                </button>
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <!-- Export Action Buttons (Hidden until scan completes) -->
+                <div id="actionToolbar" class="hidden items-center gap-2.5 flex-wrap">
+                    <button onclick="exportToExcel()" class="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-700 text-white rounded-lg text-xs font-bold hover:bg-emerald-800 transition-all shadow-sm">
+                        <span class="material-symbols-outlined text-sm">table_view</span> Export Excel
+                    </button>
+                    <button onclick="downloadTableImage()" class="flex items-center gap-1.5 px-3.5 py-2 bg-primary text-white rounded-lg text-xs font-bold hover:bg-primary-container transition-all shadow-sm">
+                        <span class="material-symbols-outlined text-sm">download</span> Save PNG
+                    </button>
+                    <button id="copyBtn" onclick="copyTableToClipboard()" class="flex items-center gap-1.5 px-4 py-2 bg-secondary text-white rounded-lg text-xs font-bold hover:bg-opacity-90 transition-all shadow-md">
+                        <span class="material-symbols-outlined text-sm">content_paste</span> Copy to MS Teams
+                    </button>
+                </div>
             </div>
         </div>
     </header>
 
     <div class="p-6 lg:p-8 max-w-[1600px] mx-auto space-y-6">
-        <!-- Title Section -->
+        <!-- Title Section & How-To Trigger -->
         <section class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
                 <span class="text-secondary font-semibold text-xs tracking-widest uppercase mb-1 block">Internal Audit Control</span>
                 <h2 class="text-3xl lg:text-4xl font-headline font-bold text-on-surface tracking-tight">Supplier Audit Tool</h2>
             </div>
-            <button onclick="resetAll()" class="self-start sm:self-auto text-xs text-gray-500 hover:text-red-600 flex items-center gap-1 font-medium transition-colors">
-                <span class="material-symbols-outlined text-sm">refresh</span> Reset Workspace
-            </button>
+            <div class="flex items-center gap-3 self-start sm:self-auto">
+                <button onclick="openHowToModal('ALL')" class="flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 text-primary border border-blue-200 hover:bg-blue-100 rounded-xl text-xs font-bold transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-base">help_outline</span> วิธีดึงไฟล์ Export (How to)
+                </button>
+                <button onclick="resetAll()" class="text-xs text-gray-500 hover:text-red-600 flex items-center gap-1 font-medium transition-colors px-2 py-2">
+                    <span class="material-symbols-outlined text-sm">refresh</span> Reset Workspace
+                </button>
+            </div>
         </section>
 
         <!-- KPI Summary Cards (Hidden until scan completes) -->
@@ -128,24 +143,34 @@
                     </h3>
                     
                     <div class="space-y-3">
-                        <!-- Dropzone A -->
-                        <div id="dropZoneA" class="relative group border-2 border-dashed border-outline-variant rounded-xl p-4 hover:border-primary bg-gray-50 transition-all">
-                            <input type="file" id="fileA" accept=".xls,.xlsx,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                            <div class="text-center">
-                                <span id="iconA" class="material-symbols-outlined text-2xl text-on-surface-variant group-hover:text-primary transition-colors">description</span>
-                                <p class="text-[11px] font-bold mt-1 truncate px-2" id="fileAName">A. Summary Sale Report</p>
-                                <p class="text-[9px] text-gray-400 mt-0.5">คลิกหรือลากไฟล์มาวาง</p>
+                        <!-- Dropzone A with Quick Help Button -->
+                        <div class="relative">
+                            <div id="dropZoneA" class="relative group border-2 border-dashed border-outline-variant rounded-xl p-4 hover:border-primary bg-gray-50 transition-all">
+                                <input type="file" id="fileA" accept=".xls,.xlsx,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                <div class="text-center">
+                                    <span id="iconA" class="material-symbols-outlined text-2xl text-on-surface-variant group-hover:text-primary transition-colors">description</span>
+                                    <p class="text-[11px] font-bold mt-1 truncate px-4" id="fileAName">A. Summary Sale Report</p>
+                                    <p class="text-[9px] text-gray-400 mt-0.5">คลิกหรือลากไฟล์มาวาง</p>
+                                </div>
                             </div>
+                            <button type="button" onclick="openHowToModal('A')" title="ดูวิธี Export ไฟล์ A" class="absolute top-2 right-2 z-20 w-6 h-6 rounded-full bg-white border border-gray-200 text-primary hover:bg-primary hover:text-white flex items-center justify-center shadow-sm transition-colors">
+                                <span class="text-[11px] font-bold">?</span>
+                            </button>
                         </div>
 
-                        <!-- Dropzone R -->
-                        <div id="dropZoneR" class="relative group border-2 border-dashed border-outline-variant rounded-xl p-4 hover:border-secondary bg-gray-50 transition-all">
-                            <input type="file" id="fileR" accept=".xls,.xlsx,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                            <div class="text-center">
-                                <span id="iconR" class="material-symbols-outlined text-2xl text-on-surface-variant group-hover:text-secondary transition-colors">receipt_long</span>
-                                <p class="text-[11px] font-bold mt-1 truncate px-2" id="fileRName">R. Report By Transaction</p>
-                                <p class="text-[9px] text-gray-400 mt-0.5">คลิกหรือลากไฟล์มาวาง</p>
+                        <!-- Dropzone R with Quick Help Button -->
+                        <div class="relative">
+                            <div id="dropZoneR" class="relative group border-2 border-dashed border-outline-variant rounded-xl p-4 hover:border-secondary bg-gray-50 transition-all">
+                                <input type="file" id="fileR" accept=".xls,.xlsx,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                <div class="text-center">
+                                    <span id="iconR" class="material-symbols-outlined text-2xl text-on-surface-variant group-hover:text-secondary transition-colors">receipt_long</span>
+                                    <p class="text-[11px] font-bold mt-1 truncate px-4" id="fileRName">R. Report By Transaction</p>
+                                    <p class="text-[9px] text-gray-400 mt-0.5">คลิกหรือลากไฟล์มาวาง</p>
+                                </div>
                             </div>
+                            <button type="button" onclick="openHowToModal('R')" title="ดูวิธี Export ไฟล์ R" class="absolute top-2 right-2 z-20 w-6 h-6 rounded-full bg-white border border-gray-200 text-secondary hover:bg-secondary hover:text-white flex items-center justify-center shadow-sm transition-colors">
+                                <span class="text-[11px] font-bold">?</span>
+                            </button>
                         </div>
 
                         <button onclick="processData()" class="w-full py-3.5 primary-gradient text-white font-bold rounded-xl shadow-lg hover:opacity-95 active:scale-95 transition-all mt-2 flex items-center justify-center gap-2 text-sm">
@@ -231,6 +256,145 @@
     </div>
 </main>
 
+<!-- HOW TO EXPORT MODAL (Interactive Visual Guide) -->
+<div id="howToModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-100 animate-fade-in">
+        <!-- Modal Header -->
+        <div class="sticky top-0 bg-white/95 backdrop-blur px-6 py-4 border-b border-gray-100 flex justify-between items-center z-10">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-blue-50 text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined">menu_book</span>
+                </div>
+                <div>
+                    <h3 class="font-headline font-bold text-lg text-primary">คู่มือการ Export ไฟล์รายงาน (How to Export)</h3>
+                    <p class="text-xs text-gray-500">ตั้งค่าตัวเลือกในระบบให้ตรงตามตัวอย่างด้านล่างก่อน Export เป็นไฟล์ Excel</p>
+                </div>
+            </div>
+            <button onclick="closeHowToModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-red-100 hover:text-red-600 flex items-center justify-center transition-colors">
+                <span class="material-symbols-outlined text-lg">close</span>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6 space-y-6">
+            <!-- Section A: Summary Sale Report -->
+            <div id="guideSectionA" class="rounded-2xl border-2 border-blue-100 bg-blue-50/20 p-5 space-y-4">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-primary text-white text-xs font-bold rounded-lg">ไฟล์ที่ 1 : A. Summary Sale Report</span>
+                    <span class="text-xs font-semibold text-primary">เลือก Summary By: Bar Code และ Display: Net Sale</span>
+                </div>
+
+                <!-- High-Precision Visual Mockup of Image 2 -->
+                <div class="sap-panel p-4 rounded-lg shadow-inner space-y-4 overflow-x-auto">
+                    <div class="sap-group min-w-[460px]">
+                        <span class="sap-legend">Summary By</span>
+                        <div class="flex items-center justify-between text-xs px-2 pt-1">
+                            <label class="flex items-center gap-1.5 opacity-60"><input type="radio" disabled> Shop</label>
+                            <label class="flex items-center gap-1.5 opacity-60"><input type="radio" disabled> Machine</label>
+                            <label class="flex items-center gap-1.5 opacity-60"><input type="radio" disabled> Category</label>
+                            <label class="flex items-center gap-1.5 font-bold text-blue-800 bg-yellow-200/80 px-2 py-0.5 rounded ring-2 ring-red-500">
+                                <input type="radio" checked class="text-blue-700 focus:ring-0"> Bar Code
+                            </label>
+                            <label class="flex items-center gap-1.5 opacity-60"><input type="radio" disabled> Material</label>
+                        </div>
+                    </div>
+
+                    <div class="sap-group min-w-[460px]">
+                        <span class="sap-legend">Display</span>
+                        <div class="flex items-center gap-16 text-xs px-2 pt-1">
+                            <label class="flex items-center gap-1.5 opacity-60"><input type="radio" disabled> Gross</label>
+                            <label class="flex items-center gap-1.5 font-bold text-blue-800 bg-yellow-200/80 px-2 py-0.5 rounded ring-2 ring-red-500">
+                                <input type="radio" checked class="text-blue-700 focus:ring-0"> Net Sale
+                            </label>
+                            <label class="flex items-center gap-1.5 opacity-60"><input type="radio" disabled> All</label>
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="text-xs text-gray-700 space-y-1.5 pl-1">
+                    <li class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">1</span> หัวข้อ <b>Summary By</b> ให้ติ๊กเลือกช่อง <b>Bar Code</b> (เพื่อให้ระบบดึงรหัสบาร์โค้ดมาแยกสินค้า Supplier)</li>
+                    <li class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">2</span> หัวข้อ <b>Display</b> ให้ติ๊กเลือกช่อง <b>Net Sale</b> จากนั้นกดประมวลผลและ Export เป็น Excel</li>
+                </ul>
+            </div>
+
+            <!-- Section R: Report By Transaction -->
+            <div id="guideSectionR" class="rounded-2xl border-2 border-amber-100 bg-amber-50/20 p-5 space-y-4">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-secondary text-white text-xs font-bold rounded-lg">ไฟล์ที่ 2 : R. Report By Transaction</span>
+                    <span class="text-xs font-semibold text-secondary">ต้องติ๊ก Show Material + Sale Status: All + Summary By: Invoice</span>
+                </div>
+
+                <!-- High-Precision Visual Mockup of Image 3 -->
+                <div class="sap-panel p-4 rounded-lg shadow-inner overflow-x-auto">
+                    <div class="min-w-[600px] space-y-2.5 text-xs">
+                        <!-- Row 1: Branch & Show Material -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="sap-label-box w-24 text-center">Branch</span>
+                                <span class="w-4 h-4 bg-green-700 border border-black inline-block"></span>
+                                <input type="text" value="02" readonly class="w-28 py-0.5 px-2 text-xs bg-gray-200 border-gray-400">
+                                <span class="text-gray-500">To</span>
+                                <input type="text" readonly class="w-28 py-0.5 px-2 text-xs bg-gray-200 border-gray-400">
+                            </div>
+                            <label class="flex items-center gap-1.5 font-bold text-blue-900 bg-yellow-200/80 px-2.5 py-1 rounded ring-2 ring-red-500">
+                                <input type="checkbox" checked class="rounded text-blue-700"> Show Material
+                            </label>
+                        </div>
+
+                        <!-- Row 2-4: Shop, Machine, Material -->
+                        <div class="flex items-center gap-2 opacity-75">
+                            <span class="sap-label-box w-24 text-center">Shop / Mat</span>
+                            <span class="w-4 h-4 bg-white border border-gray-400 inline-block"></span>
+                            <input type="text" readonly placeholder="(เว้นว่างเพื่อดึงทั้งหมด)" class="w-64 py-0.5 px-2 text-[11px] bg-white border-gray-400">
+                        </div>
+
+                        <!-- Row 5: Sale Date -->
+                        <div class="flex items-center gap-2">
+                            <span class="sap-btn-pill w-24 text-center">Sale Date</span>
+                            <input type="text" value="ระบุวันที่ต้องการตรวจสอบ" readonly class="w-40 py-0.5 px-2 text-xs bg-white border-gray-400 font-medium text-blue-900">
+                        </div>
+
+                        <!-- Row 6: Sale Status -->
+                        <div class="flex items-center gap-4 pt-1">
+                            <span class="sap-btn-pill w-24 text-center">Sale Status</span>
+                            <label class="flex items-center gap-1.5 font-bold text-blue-800 bg-yellow-200/80 px-2 py-0.5 rounded ring-2 ring-red-500">
+                                <input type="radio" checked class="text-blue-700"> All
+                            </label>
+                            <label class="flex items-center gap-1.5 opacity-60"><input type="radio" disabled> Sale Only</label>
+                            <label class="flex items-center gap-1.5 opacity-60"><input type="radio" disabled> Void</label>
+                        </div>
+
+                        <!-- Row 7: Summary By & Process Button -->
+                        <div class="flex items-center justify-between pt-1">
+                            <div class="flex items-center gap-4">
+                                <span class="sap-btn-pill w-24 text-center">Summary By</span>
+                                <label class="flex items-center gap-1.5 opacity-60"><input type="radio" disabled> Shop</label>
+                                <label class="flex items-center gap-1.5 opacity-60"><input type="radio" disabled> Machine</label>
+                                <label class="flex items-center gap-1.5 font-bold text-blue-800 bg-yellow-200/80 px-2 py-0.5 rounded ring-2 ring-red-500">
+                                    <input type="radio" checked class="text-blue-700"> Invoice
+                                </label>
+                            </div>
+                            <span class="sap-btn-pill px-5 py-1 shadow-sm">Process (F11)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="text-xs text-gray-700 space-y-1.5 pl-1">
+                    <li class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-secondary text-white text-[10px] font-bold flex items-center justify-center">1</span> <b>สำคัญมาก:</b> ต้องติ๊กถูกที่ช่อง <b>Show Material</b> ด้านขวาบนเสมอ (เพื่อให้มีรหัส Mat Code และชื่อสินค้าในตาราง)</li>
+                    <li class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-secondary text-white text-[10px] font-bold flex items-center justify-center">2</span> เลือก <b>Sale Status = All</b> และ <b>Summary By = Invoice</b> จากนั้นกด <b>Process (F11)</b> แล้ว Export เป็น Excel</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+            <button onclick="closeHowToModal()" class="px-5 py-2.5 primary-gradient text-white text-xs font-bold rounded-xl shadow-md hover:opacity-95 transition-all">
+                เข้าใจแล้ว ปิดหน้าต่าง
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Toast Notification Container -->
 <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
@@ -238,6 +402,33 @@
     // Global State
     let allMatchedRows = [];
     let currentFilteredRows = [];
+
+    // How-To Modal Controls
+    function openHowToModal(focusSection = 'ALL') {
+        const modal = document.getElementById('howToModal');
+        const secA = document.getElementById('guideSectionA');
+        const secR = document.getElementById('guideSectionR');
+        
+        secA.style.display = (focusSection === 'ALL' || focusSection === 'A') ? 'block' : 'none';
+        secR.style.display = (focusSection === 'ALL' || focusSection === 'R') ? 'block' : 'none';
+        
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeHowToModal() {
+        const modal = document.getElementById('howToModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    // Close modal on backdrop click or ESC key
+    document.getElementById('howToModal').addEventListener('click', (e) => {
+        if (e.target.id === 'howToModal') closeHowToModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeHowToModal();
+    });
 
     // Helper: Escape HTML
     const escapeHTML = (str) => String(str ?? '-')
